@@ -61,8 +61,8 @@ def process_kml_file(sat, kml_file_path):
 
     # Extract the timestamp from the KML file name
     kml_file_basename = os.path.basename(kml_file_path)
-    start_timestamp = kml_file_basename.split('__')[2][:8]
-    end_timestamp = kml_file_basename.split('__')[3][:8]
+    start_timestamp = kml_file_basename.split('_')[5][:8]
+    end_timestamp = kml_file_basename.split('_')[6][:8]
     timestamp = start_timestamp + '_' + end_timestamp
 
     # Save the result to a csv file with timestamp in the filename
