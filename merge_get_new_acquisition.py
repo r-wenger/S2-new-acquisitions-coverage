@@ -27,7 +27,7 @@ def process_kml_file(sat, kml_file_path):
     orbit_polygons = gpd.read_file(shp_path)
 
     # Initialize an empty dataframe to store results
-    results = pd.DataFrame(columns=['Tile', 'Orbit', 'IntersectionArea', 'TileArea', 'Percentage', 'BeginTime', 'EndTime', 'Satellite'])
+    results = pd.DataFrame(columns=['Tile', 'Orbit', 'IntersectionArea', 'TileArea', 'Percentage', 'BeginTime', 'EndTime', 'Satellite', 'link'])
 
     # Iterate through each tile
     for i, tile in tqdm(tiles_s2.iterrows(), total=tiles_s2.shape[0], desc="Processing tiles"):
@@ -47,7 +47,15 @@ def process_kml_file(sat, kml_file_path):
                 # Calculate percentage of tile covered by orbit
                 percentage = (intersection_area / tile_area) * 100
                 
-                # Append result to dataframe
+                # Sauvegardez l'intersection sous forme de fichier GeoPackage
+                filename = f"{tile.Name}_{orbit.OrbitRelat}_{orbit.begin}_{sat}.gpkg"
+                filepath = f"intersections/{filename}"
+                gpd.GeoDataFrame(geometry=[intersection]).to_file(filepath, driver="GPKG")
+
+                # Créez le lien de téléchargement pour le fichier gpkg
+                download_link = f"http://romainwenger.fr/getCoverage/intersections/{filename}"
+
+                # Append result to dataframe including the link
                 results = results.append({
                     'Tile': tile.Name,
                     'Orbit': orbit.OrbitRelat,
@@ -56,7 +64,8 @@ def process_kml_file(sat, kml_file_path):
                     'Percentage': percentage,
                     'BeginTime': orbit.begin,
                     'EndTime': orbit.end,
-                    'Satellite' : sat
+                    'Satellite' : sat,
+                    'link': download_link
                 }, ignore_index=True)
 
     # Extract the timestamp from the KML file name
